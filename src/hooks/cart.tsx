@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 
 import AsyncStorage from '@react-native-community/async-storage';
+//import { Product } from 'src/pages/Cart/styles';
 
 interface Product {
   id: string;
@@ -31,21 +32,64 @@ const CartProvider: React.FC = ({ children }) => {
   useEffect(() => {
     async function loadProducts(): Promise<void> {
       // TODO LOAD ITEMS FROM ASYNC STORAGE
+
+      const storageProducts = await AsyncStorage.getItem('CartItem')
+      if(storageProducts){
+        console.log(storageProducts);
+        return setProducts(JSON.parse(storageProducts));
+
+      }
+
     }
 
     loadProducts();
   }, []);
 
   const addToCart = useCallback(async product => {
-    // TODO ADD A NEW ITEM TO THE CART
+
+    const existentProduct = products.findIndex(indexProduct => indexProduct.id === product.id);
+    console.log(product.id);
+    if(existentProduct >= 0){
+      products[existentProduct].quantity += 1;
+    }
+    else{
+      products.push({... product, quantity: 1})
+    }
+
+    setProducts([...products]);
+    await AsyncStorage.setItem('CartItem', JSON.stringify([...products]))
+
+
   }, []);
 
   const increment = useCallback(async id => {
     // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
+    const existentProduct = products.findIndex(product => product.id === id)
+    if(existentProduct >= 0){
+      products[existentProduct].quantity += 1;
+    }
+
+    setProducts([...products]);
+    await AsyncStorage.setItem('CartItem', JSON.stringify([...products]));
+
   }, []);
 
   const decrement = useCallback(async id => {
     // TODO DECREMENTS A PRODUCT QUANTITY IN THE CART
+    const existentProduct = products.findIndex(product => product.id === id)
+    if(existentProduct >= 0){
+      const quantityProduct = products[existentProduct].quantity;
+
+      if(quantityProduct > 1){
+        products[existentProduct].quantity -= 1;
+      }else{
+        products.splice(existentProduct);
+      }
+
+    }
+    setProducts([...products]);
+    await AsyncStorage.setItem('CartItem', JSON.stringify([...products]));
+
   }, []);
 
   const value = React.useMemo(

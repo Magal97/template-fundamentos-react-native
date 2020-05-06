@@ -52,7 +52,7 @@ export const TotalContainer = styled.View`
 
 export const ProductSinglePrice = styled.Text`
   font-size: 12px;
-  color: #a0a0b3;
+  color: #000000;
   margin-top: 8px;
 `;
 
